@@ -1,4 +1,5 @@
-from rich import print
-a = (1,2,3)
+from aoc import *
 
-print(a, a+('d',))
+
+
+print(load(1,2023).findgroups('\d').level[0].combine())

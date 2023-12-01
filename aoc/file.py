@@ -5,12 +5,26 @@ from .utility import sort, splitlen, Matrix, Match
 import numpy as np
 import re
 from itertools import product
+from rich import print
 
 class List:
     def __init__(self, lines: list[str], sortids = None):
         self.items = lines
         self.sortids = sortids
     
+    @property
+    def level(self) -> List:
+        levels = [self.items,[]]
+        while True:
+            for item in levels[-2]:
+                if isinstance(item, List):
+                    levels[-1].append(item)
+            if levels[-1] == []:
+                break
+            levels[-1] = reduce(lambda a,b: a+b, levels[-1])
+            levels.append([])
+        return [List(level) for level in levels[:-1]]
+            
     @property
     def len(self) -> int:
         return len(self.items)
@@ -21,6 +35,8 @@ class List:
     
     @property
     def isList(self) -> bool:
+        if self.len==0:
+            return False
         return isinstance(self.items[0], List)
     
     @property
@@ -79,7 +95,7 @@ class List:
     
     def findgroups(self, pattern, overlap=False) -> List:
         if overlap:
-            return self.apply(lambda x:  List([match.group(1) for match in re.finditer(pattern, x)]))
+            pattern = f'(?={pattern})'
         return self.apply(lambda x: List(re.findall(pattern, x)))
     
     def findlist(self, listpat) -> List:
