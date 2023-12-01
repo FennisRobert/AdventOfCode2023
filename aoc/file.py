@@ -191,7 +191,16 @@ class List:
     def mustmatch(self, matches: tuple[Match], recursive=True):
         return self.applytoself(lambda x: all([x.test(m) for m in matches]), recursive=recursive)
     
-            
+    def __and__(self, other: List):
+        return List(list(set(self.items).intersection(set(other.items)))) 
+    
+    def diff(self, other: List) -> List:
+        return List([x for x in self.items if x not in other.items])
+    
+    @staticmethod
+    def range(*args):
+        return List(list(range(*args)))
+    
 class ListSet(List):
      def __init__(self, lines: list[str], sortids = None):
         self.items = set(lines)
