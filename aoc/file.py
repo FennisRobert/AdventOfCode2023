@@ -9,6 +9,10 @@ from rich import print
 
 class List:
     def __init__(self, lines: list[str], sortids = None):
+        if isinstance(lines, (set, list, tuple)):
+            lines = list(lines)
+        else:
+            lines = [lines,]
         self.items = lines
         self.sortids = sortids
     
@@ -66,6 +70,11 @@ class List:
             return List([x.applyto(function) for x in self.items])
         return List(function(self.items))
     
+    def applytolast(self, function):
+        if self.isList and not self.items[0].isList:
+            return function(self)
+        return List([x.applytolast(function) for x in self.items])
+    
     def applytoself(self, function, recursive=True):
         if self.isList and recursive:
             return List([x.applytoself(function) for x in self.items])
@@ -100,6 +109,7 @@ class List:
     
     def findlist(self, listpat) -> List:
         return self.apply(lambda x: List(reduce(lambda a,b: a+b, [re.findall(pat, x) for pat in listpat])))
+    
     def toint(self, recursive=True) -> List:
         return self.apply(lambda x: int(x), recursive=recursive)
 
@@ -173,10 +183,10 @@ class List:
     def iterpermute(self, depth: int = 2):
         return list(product(*[self.items for x in range(depth)]))
     
-    def combine(self, iterations=-1):
+    def combine(self, function = lambda x: x.sum(False), iterations=-1):
         if self.isList and iterations != 0:
-            return List([x.combine(iterations-1) for x in self.items])
-        return self.sum(False)
+            return List([x.combine(function, iterations-1) for x in self.items])
+        return function(self)
     
     def __add__(self, other: List) -> List:
         if isinstance(other, List):
@@ -191,7 +201,11 @@ class List:
     def mustmatch(self, matches: tuple[Match], recursive=True):
         return self.applytoself(lambda x: all([x.test(m) for m in matches]), recursive=recursive)
     
+    def testitems(self, matches: tuple[Match], recursive=True):
+        return self.apply(lambda x: all([m(x) for m in matches]), recursive=True)
+    
     def __and__(self, other: List):
+        #print(set(self.items), set(other.items), set(self.items).intersection(set(other.items)))
         return List(list(set(self.items).intersection(set(other.items)))) 
     
     def diff(self, other: List) -> List:
@@ -200,6 +214,12 @@ class List:
     @staticmethod
     def range(*args):
         return List(list(range(*args)))
+    
+    def unique(self, recursive=True):
+        return self.applyto(lambda x: list(set(x)), recursive=recursive)
+    
+    def common(self):
+        return List(reduce(lambda a,b: a.__and__(b), self.items))
     
 class ListSet(List):
      def __init__(self, lines: list[str], sortids = None):

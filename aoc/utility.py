@@ -25,6 +25,10 @@ def reget(input_string, pattern):
     else:
         return None  # Return None if no match is found
 
+
+def lrange(start,end):
+    return list(range(start,end+1))
+
 def product(lst):
     return reduce(lambda a,b: a*b,lst)
 
@@ -97,5 +101,7 @@ class Match:
         
     def __call__(self, arg):
         if re.findall(self.pat,arg):
-            return self.verification(*re.findall(self.pat, arg))
+            #print(re.findall(self.pat, arg))
+            #print([self.verification(x) for x in re.findall(self.pat, arg)])
+            return all([self.verification(x) for x in re.findall(self.pat, arg)])
         return False
