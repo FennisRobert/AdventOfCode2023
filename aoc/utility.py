@@ -36,7 +36,41 @@ def product(lst):
 class Matrix:
     
     def __init__(self, items: list[list]):
-        self.M = np.array(items)
+        self.dt = items
+        self.width = len(self.dt[0])
+        self.height = len(self.dt)
+        
+    def __str__(self) -> str:
+        return f'{self.dt}'
+    
+    def mod(self, col, row):
+        return self.dt[col % self.width][row & self.height]
+    
+    def __call__(self, col, row):
+        if (0 > col) or (col >= self.width) or (0 > row) or (row >= self.height):
+            return None
+        return self[row][col]
+    
+    def above(self, row, col):
+        return self(col, row-1)
+    
+    def below(self, row, col):
+        return self(col, row+1)
+    
+    def right(self, row, col):
+        return self(col+1, row)
+    
+    def left(self, row, col):
+        return self(col-1, row)
+    
+    def around(self, row, col):
+        return [x for x in [self(row+r,col+c) for r,c in zip([0, -1, -1, -1, 0, 1, 1, 1],[-1, -1, 0, 1, 1, 1, 0, -1])] if x is not None]
+        
+    def __getitem__(self, slice):
+        return self.dt[slice]
+    
+    
+        
         
 
 class RecDict:

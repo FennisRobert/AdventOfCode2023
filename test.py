@@ -1,5 +1,8 @@
 from aoc import *
 
 
+M = Matrix(load(3,2023).split().tolist())
 
-print(load(1,2023).findgroups('\d').level[0].combine())
+print(M.around(5,5))
+
+#print(M.dt[1])
