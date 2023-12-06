@@ -36,7 +36,6 @@ for listgroup in load(5,2023,test).symbgroup()[1:]:
     line1 = listgroup[0]
     newdict = RangeDict()
     for line in listgroup[1:].split(' ').toint():
-        #print(*line.items)
         newdict.add_range(*line.items)
     maps.append(newdict)
 
