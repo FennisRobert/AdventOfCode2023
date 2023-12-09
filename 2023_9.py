@@ -10,8 +10,7 @@ def idiff(inpt: np.ndarray, times: int):
         outpt = outpt[1:]-outpt[:-1]
     return outpt
 
-def polycoeff(ys: np.ndarray, order):
-
+def extrapolate(ys: np.ndarray, order):
     value = 0
     diffs = []
     for i in range(order+1):
@@ -30,7 +29,7 @@ for _list in data:
         n += 1
     
     arry = np.array([x for x in _list]).astype(dtype)
-    sumv1 += polycoeff(arry,n)
-    sumv2 += polycoeff(arry[::-1],n)
+    sumv1 += extrapolate(arry,n)
+    sumv2 += extrapolate(arry[::-1],n)
     
 print(f'Part1: {sumv1}, Part2: {sumv2}')
