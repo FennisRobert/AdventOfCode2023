@@ -5,16 +5,15 @@ from scipy.linalg import solve
 data = (load(9,2023,False).split(' ').toint())
 dtype = np.float64
 
-def extrapoly(ys: np.ndarray, order: int,):
+def extrapoly(ys: np.ndarray, order: int, querypoint):
     xs = np.arange(len(ys)).astype(dtype)
     N = order+1
     M = np.zeros((N,N)).astype(dtype)
     for i in range(N):
         M[:,i] = xs[:N]**(order-i)
     B = ys[:N]
-    #coeff = np.linalg.inv(M) @ B
     coeff = solve(M, B)
-    return sum(coeff*(len(ys)**np.arange(order,-1,-1).astype(np.float64))),sum(coeff*((-1)**np.arange(order,-1,-1).astype(np.float64)))
+    return sum(coeff*(querypoint**np.arange(order,-1,-1).astype(np.float64)))
 
 def idiff(inpt: np.ndarray, times: int):
     outpt = inpt
@@ -45,10 +44,10 @@ for _list in data:
     arry = np.array([x for x in _list])
     sumv1 += extrapolate(arry,n)
     sumv2 += extrapolate(arry[::-1],n)
-    p1, p2 = extrapoly(arry,n)
-    sumv1linalg += p1
-    sumv2linalg += p2
-    extrapoly(arry,n)
+    
+    sumv1linalg += extrapoly(arry,n,len(arry))
+    sumv2linalg += extrapoly(arry,n,-1)
+
     
 print(f'Part1: {sumv1}, Part2: {sumv2}')
 print(f'Part1 LinAlg: {round(sumv1linalg)}, Part2 LinAlg: {round(sumv2linalg)}')
