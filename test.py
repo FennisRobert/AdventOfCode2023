@@ -1,8 +1,4 @@
 from aoc import *
 
-
-M = Matrix(load(3,2023,True).split().tolist())
-
-print(M.around(1,1))
-print(M.W[2:4,2:4])
-#print(M.dt[1])
+l = [1,2,3,4,5,6,1]
+print(l.index(1))
