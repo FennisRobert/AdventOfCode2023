@@ -1,7 +1,9 @@
+from __future__ import annotations
 import re
 from rich import print
 import numpy as np
 from functools import reduce
+from typing import Callable
 
 def splitlen(lst: list, NSplit: int = 2) -> list:
     sN = len(lst)//NSplit
@@ -91,13 +93,107 @@ class Matrix:
         
     def __getitem__(self, slc):
         if isinstance(slc, tuple):
-            return self.dt[slc[0]][slc[1]]
+            return Matrix([_row[slc[1]] for _row in self.dt[slc[0]]])
         return self.dt[slc]
     
+    def flipx(self) -> Matrix:
+        return Matrix([_row[::-1] for _row in self.dt])
     
-        
-        
+    def flipy(self) -> Matrix:
+        return Matrix(self.dt[::-1])
+    
+    def splitx(self, index) -> tuple[Matrix, Matrix]:
+        return self[:, :index+1], self[:, index+1:]
+    
+    def splity(self, index) -> tuple[Matrix, Matrix]:
+        return self[:index+1, :], self[index+1:, :]
+    
+    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = ',') -> str:
+        sep = separator + ' '
+        def get_display_indices(total, max_display):
+            if total <= max_display:
+                return list(range(total)), False
+            else:
+                num_display = max_display - 1  # Leave space for '...'
+                first_part = num_display // 2
+                second_part = num_display - first_part
+                indices = list(range(first_part)) + [-1] + list(range(total - second_part, total))
+                return indices, True
 
+        cols_to_display, cols_truncated = get_display_indices(self.width, xmax)
+        rows_to_display, rows_truncated = get_display_indices(self.height, ymax)
+
+        data_to_display = []
+        for row_idx in rows_to_display:
+            if row_idx == -1:
+                data_to_display.append(None)  # Indicates '...'
+            else:
+                row_data = []
+                for col_idx in cols_to_display:
+                    if col_idx == -1:
+                        row_data.append(None)  # Indicates '...'
+                    else:
+                        row_data.append(str(self.dt[row_idx][col_idx]))
+                data_to_display.append(row_data)
+
+        # Compute column widths for alignment
+        column_widths = [0] * len(cols_to_display)
+        for col_idx in range(len(cols_to_display)):
+            max_width = 0
+            for row in data_to_display:
+                if row is None:
+                    continue
+                cell = row[col_idx]
+                if cell is None:
+                    cell_str = '...'
+                else:
+                    cell_str = cell
+                max_width = max(max_width, len(cell_str))
+            column_widths[col_idx] = max_width
+
+        # Compute data width and line width
+        data_width = sum(column_widths) + (len(column_widths) - 1) * len(sep)
+        line_width = data_width + 2  # For the '│' at start and end
+
+        # Build top and bottom lines with box drawing characters
+        top_line = '┍' + ' ' * (line_width - 2) + '┐'
+        bottom_line = '┕' + ' ' * (line_width - 2) + '┙'
+
+        lines = [top_line]
+
+        for row in data_to_display:
+            if row is None:
+                # Row representing '...'
+                ellipsis = '...'
+                padding = line_width - 2 - len(ellipsis)
+                left_padding = padding // 2
+                right_padding = padding - left_padding
+                row_line = '│' + ' ' * left_padding + ellipsis + ' ' * right_padding + '│'
+            else:
+                row_items = []
+                for idx, cell in enumerate(row):
+                    if cell is None:
+                        cell_str = '...'
+                    else:
+                        cell_str = cell
+                    cell_str_padded = cell_str.rjust(column_widths[idx])
+                    row_items.append(cell_str_padded)
+                row_content = sep.join(row_items)
+                row_line = '│' + row_content + '│'
+            lines.append(row_line)
+
+        lines.append(bottom_line)
+        return '\n'.join(lines)
+    
+    def merge(self, other: Matrix) -> Matrix:
+        return Matrix([[(elemA, elemB) for elemA, elemB in zip(rowA, rowB)] for rowA, rowB in zip(self.dt, other.dt)])
+
+    def apply(self, function: Callable) -> Matrix:
+        return Matrix([[function(x) for x in row] for row in self.dt])
+
+    def all(self, truth_checker: Callable = lambda x: x==True) -> bool:
+        return all([all(row) for row in self.dt])
+    
 class RecDict:
     
     def __init__(self, defaultval = None):
