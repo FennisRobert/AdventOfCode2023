@@ -5,10 +5,12 @@ from .utility import sort, splitlen, Matrix, Match
 import numpy as np
 import re
 from itertools import product
+from typing import Callable
 from rich import print
 
+
 class List:
-    def __init__(self, lines: list[str], sortids = None):
+    def __init__(self, lines: list[str | int | float], sortids = None):
         if isinstance(lines, (set, list, tuple)):
             lines = list(lines)
         else:
@@ -38,7 +40,7 @@ class List:
         return '\n'.join([str(x) for x in self.items])
     
     @property
-    def isList(self) -> bool:
+    def has_lists(self) -> bool:
         if self.len==0:
             return False
         return isinstance(self.items[0], List)
@@ -46,6 +48,9 @@ class List:
     @property
     def dtype(self):
         return type(self.items[0])
+    
+    def __len__(self) -> int:
+        return len(self.items)
     
     def __str__(self) -> str:
         return f'List{self.items}'
@@ -60,28 +65,39 @@ class List:
             return List(self.items[slice], self.sortids[slice])
         return List(self.items[slice])
     
+    def all(self) -> bool:
+        return all(self.items)
+    
     def apply(self, function, recursive=True):
-        if self.isList and recursive:
+        '''Applies the provided function to all elements in the lists of lists.'''
+        if self.has_lists and recursive:
             return List([x.apply(function) for x in self.items])
         return List([function(x) for x in self.items])
     
-    def applyto(self, function, recursive=True):
-        if self.isList and recursive:
-            return List([x.applyto(function) for x in self.items])
+    def apply_to_list(self, function, recursive=True):
+        '''Applies the provided function to the list contained in the List objects instead of the items in the list'''
+        if self.has_lists and recursive:
+            return List([x.apply_to_list(function) for x in self.items])
         return List(function(self.items))
     
-    def applytolast(self, function):
-        if self.isList and not self.items[0].isList:
-            return function(self)
-        return List([x.applytolast(function) for x in self.items])
-    
-    def applytoself(self, function, recursive=True):
-        if self.isList and recursive:
-            return List([x.applytoself(function) for x in self.items])
+    def apply_to_deepest(self, function):
+        '''Applies the function to the deepest List object that does not contain lists.'''
+        if self.has_lists :
+            return List([x.apply_to_deepest(function) for x in self.items])
         return function(self)
     
+    def apply_to_deepest_items(self, function, recursive=True):
+        if self.has_lists and recursive:
+            return List([x.apply_to_deepest_items(function) for x in self.items])
+        return function(self)
+    
+    def abstract_diff(self, merger: Callable, recursive=True) -> List:
+        if self.has_lists and recursive:
+            return List([x.abstract_diff(merger) for x in self.items])
+        return List([merger(a,b) for a,b in zip(self.items[:-1], self.items[1:])])
+    
     def reduce(self, rfunc: callable, recursive=True):
-        if self.isList and recursive:
+        if self.has_lists and recursive:
             return List([x.reduce(rfunc) for x in self.items])
         return reduce(rfunc, self.items)
     
@@ -95,7 +111,7 @@ class List:
         return List([List(x) for x in transposed_lists])
     
     def remove(self, item, recursive=True) -> List:
-        return self.applyto(lambda _list: [x for x in _list if x is not item])
+        return self.apply_to_list(lambda _list: [x for x in _list if x is not item])
     
     def find(self, pattern, selection=None) -> List:
         if selection is not None:
@@ -164,18 +180,29 @@ class List:
             for item in self.items:
                 yield item
     
+    def first(self, check: Callable) -> int:
+        checklist = self.apply(check, False).items
+        if True in checklist:
+            return checklist.index(True)
+        else:
+            return None
+    
+    def without(self, indices: list[int]) -> List:
+        return List([item for i,item in enumerate(self.items) if i not in indices])
+    
     def tolist(self, recursive=True):
-        if self.isList:
+        if self.has_lists:
             return [x.tolist(recursive=recursive) for x in self.items]
         return self.items
         
     def toset(self, recursive=True):
-        if self.isList and recursive:
+        if self.has_lists and recursive:
             return List([x.toset() for x in self.items])
         return ListSet(self.items, self.sortids)
     
+
     def count(self, truthtest: callable) -> int:
-        pass
+        return sum([truthtest(x) for x in self.items])
     
     def tomatrix(self) -> Matrix:
         return Matrix(self.tolist())
@@ -184,22 +211,28 @@ class List:
         return list(product(*[self.items for x in range(depth)]))
     
     def combine(self, function = lambda x: x.sum(False), iterations=-1):
-        if self.isList and iterations != 0:
+        if self.has_lists and iterations != 0:
             return List([x.combine(function, iterations-1) for x in self.items])
         return function(self)
     
+    def merge(self, merger: Callable) -> List:
+        base = self.items[0].tolist()
+        for item in self.items[1:]:
+            base = [merger(a,b) for a,b in zip(base, item)]
+        return List(base)
+
     def __add__(self, other: List) -> List:
         if isinstance(other, List):
             return List(self.items+other.items)
             
     def contains(self, items: tuple, recursive=True):
-        return self.applytoself(lambda x: all([(it in x.items) for it in items]), recursive=recursive)
+        return self.apply_to_deepest_items(lambda x: all([(it in x.items) for it in items]), recursive=recursive)
     
     def test(self, function: callable):
         return any([function(x) for x in self.items])
     
     def mustmatch(self, matches: tuple[Match], recursive=True):
-        return self.applytoself(lambda x: all([x.test(m) for m in matches]), recursive=recursive)
+        return self.apply_to_deepest_items(lambda x: all([x.test(m) for m in matches]), recursive=recursive)
     
     def testitems(self, matches: tuple[Match], recursive=True):
         return self.apply(lambda x: all([m(x) for m in matches]), recursive=True)
@@ -216,7 +249,7 @@ class List:
         return List(list(range(*args)))
     
     def unique(self, recursive=True):
-        return self.applyto(lambda x: list(set(x)), recursive=recursive)
+        return self.apply_to_list(lambda x: list(set(x)), recursive=recursive)
     
     def common(self):
         return List(reduce(lambda a,b: a.__and__(b), self.items))
@@ -251,11 +284,9 @@ class AOCFile(List):
             collector.append(line)
         groups.append(List(collector))
         return AOCFile(groups, self)
-        
-    
      
     
-def load(day: int, year: int = 2023, test=False) -> AOCFile:
+def load(day: int, year: int = 2024, test=False) -> AOCFile:
     if test: 
         toadd = 'test'
     else:
