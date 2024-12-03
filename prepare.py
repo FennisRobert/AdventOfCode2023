@@ -8,7 +8,23 @@ def main(arg1, arg2):
     day = int(arg1)
     year = int(arg2)
     
-    filetext = f'from aoc import *\n\nprint(load({day},{year}).lines)'
+    filetext = f"""from aoc import *
+
+######## PART 1 #######
+data = load({day},{year},test=True)
+
+print(data)
+
+print(f'Solution to part 1: {{None}}')
+
+######## PART 2 #######
+data = load({day},{year},test=True)
+
+print(data)
+
+print(f'Solution to part 2: {{None}}')
+
+    """
     
     with open(str(Path(str(year)) / f'day{day}.txt'), 'w') as file:
         file.write('')

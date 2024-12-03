@@ -7,7 +7,7 @@ import re
 from itertools import product
 from typing import Callable
 from rich import print
-
+from .game import GameBoard
 
 class List:
     def __init__(self, lines: list[str | int | float], sortids = None):
@@ -207,6 +207,8 @@ class List:
     def tomatrix(self) -> Matrix:
         return Matrix(self.tolist())
     
+    def togameboard(self) -> GameBoard:
+        return GameBoard(self.tolist())
     def iterpermute(self, depth: int = 2):
         return list(product(*[self.items for x in range(depth)]))
     

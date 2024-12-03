@@ -108,7 +108,10 @@ class Matrix:
     def splity(self, index) -> tuple[Matrix, Matrix]:
         return self[:index+1, :], self[index+1:, :]
     
-    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = ',') -> str:
+    def count(self, identifier) -> int:
+        return sum([sum([1 for x in row if x == identifier]) for row in self.dt])
+    
+    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = '') -> str:
         sep = separator + ' '
         def get_display_indices(total, max_display):
             if total <= max_display:
@@ -248,15 +251,15 @@ class RecDict:
     
 class Match:
     
-    def __init__(self, regexpat: str, verification: callable):
+    def __init__(self, regexpat: str):
         
         self.pat = regexpat.replace("{INT}","(\d+)").replace('{FLOAT}','([+-]?\d+\.\d+)').replace('{STRING}','(\w+)')
-        self.verification = verification
         self.items = None
         
     def __call__(self, arg):
         if re.findall(self.pat,arg):
-            #print(re.findall(self.pat, arg))
-            #print([self.verification(x) for x in re.findall(self.pat, arg)])
-            return all([self.verification(x) for x in re.findall(self.pat, arg)])
+            return re.findall(self.pat, arg)
         return False
+    
+    def __add__(self, other) -> Match:
+        return Match(self.pat + '|' + other.pat)
