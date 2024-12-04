@@ -70,7 +70,26 @@ class Matrix:
             return None
         return self[row][col]
     
-   
+    
+    def rot_cw(self) -> Matrix:
+        return Matrix([[self.dt[y][x] for y in range(self.height-1,-1,-1)]for x in range(self.width)])
+    
+    def rot_cw_45(self, filler=None) -> Matrix:
+        newW = int(np.ceil(np.sqrt(self.width**2/2+ self.height**2/2)))
+        matrix = Matrix([[None for _ in range(newW)] for _ in range(newW)])
+        for i in range(newW):
+            for j in range(newW):
+                pass
+                
+        
+        return Matrix([[self.dt[y][x] for y in range(self.height-1,-1,-1)]for x in range(self.width)])
+    
+    def sample(self, xlist, ylist) -> list:
+        return [self.dt[y][x] for x,y in zip(xlist, ylist)]
+    
+    def rot_ccw(self) -> Matrix:
+        return Matrix([[self.dt[y][x] for y in range(self.height)]for x in range(self.width-1,-1,-1)])
+    
     def above(self, row, col):
         return self(col, row-1)
     
