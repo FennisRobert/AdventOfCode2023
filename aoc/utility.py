@@ -70,6 +70,11 @@ class Matrix:
             return None
         return self[row][col]
     
+    def pad(self, n: int, filler) -> Matrix:
+        emptyrow = [filler for _ in range(self.width+2*n)]
+        padding = [filler for _ in range(n)]
+        rows = [emptyrow, emptyrow] + [padding+ row +padding for row in self.dt ]  + [emptyrow, emptyrow]
+        return Matrix(rows)
     
     def rot_cw(self) -> Matrix:
         return Matrix([[self.dt[y][x] for y in range(self.height-1,-1,-1)]for x in range(self.width)])
