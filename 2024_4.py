@@ -5,8 +5,7 @@ from aoc import *
 pad = 4
 data = load(4,2024,test=False).split().tomatrix().pad(pad,' ')
 
-
-
+print(data.tostring())
 WORD = 'XMAS'
 
 w = data.width
@@ -17,7 +16,7 @@ counter = 0
 def inrange(xs, ys) -> bool:
     return all([0<=x<w for x in xs]) and all([0<=y<h for y in ys])
 
-for ix,iy in [(i,j) for i in range(pad-1,w-pad) for j in range(pad-1,h-pad)]:
+for ix,iy in [(i,j) for i in range(pad,w-pad) for j in range(pad,h-pad)]:
     #right
     I = list(range(ix,ix+WL))
     J = [iy for _ in range(WL)]

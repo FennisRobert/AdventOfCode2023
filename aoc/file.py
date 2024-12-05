@@ -209,6 +209,7 @@ class List:
     
     def togameboard(self) -> GameBoard:
         return GameBoard(self.tolist())
+    
     def iterpermute(self, depth: int = 2):
         return list(product(*[self.items for x in range(depth)]))
     
@@ -256,6 +257,11 @@ class List:
     def common(self):
         return List(reduce(lambda a,b: a.__and__(b), self.items))
     
+    def batchreplace(self, replacers: list[tuple]):
+        list = self
+        for a,b in replacers:
+            list = list.apply(lambda x: x.replace(a,b))
+        return list
 class ListSet(List):
      def __init__(self, lines: list[str], sortids = None):
         self.items = set(lines)

@@ -18,11 +18,4 @@ for i in range(1,Nterms+1):
 
 Dtot = sum(deqs)
 
-Ddsx = Dtot.diff(Sx)
-Ddsy = Dtot.diff(Sy)
-Ddsz = Dtot.diff(Sz)
-Ddvx = Dtot.diff(Vx)
-Ddvy = Dtot.diff(Vy)
-Ddvz = Dtot.diff(Vz)
-
-print(solve(Ddsx, Sx))
+print(f'Dtot = {Dtot}')

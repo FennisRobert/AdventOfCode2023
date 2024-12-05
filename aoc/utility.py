@@ -48,6 +48,14 @@ class SliceLim:
             return slice(min(max(slc.start,0),self.shape[0]), min(max(slc.stop,0),self.shape[0]),slc.step)
         return min(max(slc,0),self.shape[0])
 
+
+class _SliceGetter:
+    
+    def __getitem__(self, slc):
+        return slc
+    
+slicegetter = _SliceGetter()
+
 class Matrix:
     
     def __init__(self, items: list[list]):
@@ -70,10 +78,11 @@ class Matrix:
             return None
         return self[row][col]
     
+        
     def pad(self, n: int, filler) -> Matrix:
         emptyrow = [filler for _ in range(self.width+2*n)]
         padding = [filler for _ in range(n)]
-        rows = [emptyrow, emptyrow] + [padding+ row +padding for row in self.dt ]  + [emptyrow, emptyrow]
+        rows = [emptyrow]*n + [padding+ row +padding for row in self.dt ]  + [emptyrow]*n
         return Matrix(rows)
     
     def rot_cw(self) -> Matrix:
@@ -108,13 +117,11 @@ class Matrix:
         return self(col-1, row)
     
     def around(self, row, col):
-        print(self._SL[-4:4,-5:200])
         Cs = self.H[col-1:col+2,row-1:row+2].flatten()
         Rs = self.W[col-1:col+2,row-1:row+2].flatten()
-        print(Cs.flatten(),Rs.flatten())
         return [self[r,c] for r,c in zip(Rs,Cs) if (r,c) is not (row,col)]
         return [x for x in [self(row+r,col+c) for r,c in zip([0, -1, -1, -1, 0, 1, 1, 1],[-1, -1, 0, 1, 1, 1, 0, -1])] if x is not None]
-        
+    
     def __getitem__(self, slc):
         if isinstance(slc, tuple):
             return Matrix([_row[slc[1]] for _row in self.dt[slc[0]]])
@@ -135,8 +142,14 @@ class Matrix:
     def count(self, identifier) -> int:
         return sum([sum([1 for x in row if x == identifier]) for row in self.dt])
     
-    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = '') -> str:
+    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = '', mark=None) -> str:
         sep = separator + ' '
+        if mark is None:
+            domark = []
+            marker = ''
+        else:
+            domark, marker = mark
+            
         def get_display_indices(total, max_display):
             if total <= max_display:
                 return list(range(total)), False
@@ -160,8 +173,11 @@ class Matrix:
                     if col_idx == -1:
                         row_data.append(None)  # Indicates '...'
                     else:
-                        row_data.append(str(self.dt[row_idx][col_idx]))
-                data_to_display.append(row_data)
+                        if (col_idx,row_idx) in domark:
+                            row_data.append(marker)
+                        else:
+                            row_data.append(str(self[row_idx][col_idx]))
+                data_to_display.append(row_data[:])
 
         # Compute column widths for alignment
         column_widths = [0] * len(cols_to_display)
