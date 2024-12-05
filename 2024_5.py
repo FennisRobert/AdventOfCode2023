@@ -11,7 +11,7 @@ for a,b in rules:
     below[b].append(a)
     above[a].append(b)
 
-page_sets = data[1].split(',').toint()
+book_updates = data[1].split(',').toint()
 
 class Page:
     def __init__(self, number):
@@ -30,14 +30,14 @@ class Page:
     
 part_1_total = 0
 part_2_total = 0
-for i, pages in enumerate(page_sets):
-    pgs = [Page(i) for i in pages]
-    sorted_pgs = sorted(pgs)
+for i, pages in enumerate(book_updates):
+    page_list = [Page(i) for i in pages]
+    sorted_page_list = sorted(page_list)
     
-    if not all(p1==p2 for p1,p2 in zip(pgs,sorted_pgs)):
-        part_2_total += sorted_pgs[(len(sorted_pgs)-1)//2 ].num
+    if not all(p1==p2 for p1,p2 in zip(page_list,sorted_page_list)):
+        part_2_total += sorted_page_list[(len(sorted_page_list)-1)//2].num
     else:
-        part_1_total += pgs[(len(pgs)-1)//2].num
+        part_1_total += page_list[(len(page_list)-1)//2].num
         
 print(f'Solution to part 1: {part_1_total}')
 
