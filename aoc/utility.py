@@ -144,8 +144,12 @@ class Matrix:
     def count(self, identifier) -> int:
         return sum([sum([1 for x in row if x == identifier]) for row in self.dt])
     
-    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = '', mark=None) -> str:
-        sep = separator + ' '
+    def tostring(self, xmax: int = 15, ymax: int = 15, separator: str = '', mark=None, nospace=False) -> str:
+        if nospace is False:
+            sep = separator + ' '
+        else:
+            sep = separator
+            
         if mark is None:
             domark = []
             marker = ''
@@ -230,6 +234,9 @@ class Matrix:
         lines.append(bottom_line)
         return '\n'.join(lines)
     
+    def replace(self, dictionary: dict) -> Matrix:
+        return Matrix([[dictionary.get(x,x) for x in row] for row in self.dt])
+            
     def merge(self, other: Matrix) -> Matrix:
         return Matrix([[(elemA, elemB) for elemA, elemB in zip(rowA, rowB)] for rowA, rowB in zip(self.dt, other.dt)])
 
