@@ -51,19 +51,30 @@ print(viewer.tostring())
 print(f'Solution to part 1: {counter}')
 
 ######## PART 2 #######
-
+import numpy as np
+mapper = {
+    '': 0,
+    '#': 1,
+    'F': 2,
+    '^': 0
+}
+data = np.array([[mapper[x] for x in row] for row in data.dt])
+print(data)
 viewer = data.copy()
+coords = [(x,y) for x,y,_,_ in path_states]
 
 loop_options = set()
 for x0,y0,dx0,dy0 in tqdm(path_states):
     
-    testfield = data.copy()
+    testfield = 1*data
     
-    testfield.dt[y0+dy0][x0+dx0] = '#'
-    #viewer = testfield.copy()
-    
-    x,y = guard
-    dx,dy = 0,-1
+    testfield[y0+dy0,x0+dx0] = 1
+    # Start 2 steps earlier than the first occurance of the block location if the block is in the path. 
+    if (x0+dx0,y0+dy0) in coords:
+        x,y,dx,dy = path_states[coords.index((x0+dx0,y0+dy0))-2]
+    else:
+        x,y = guard
+        dx,dy = 0,-1
     
     havebeen = set()
     while True:
@@ -75,12 +86,12 @@ for x0,y0,dx0,dy0 in tqdm(path_states):
             break
         
         havebeen.add((x,y,dx,dy))
-        if testfield[ny][nx]=='F':
+        if testfield[ny,nx]==2:
             break
-        elif testfield[ny][nx]=='#':
+        elif testfield[ny,nx]==1:
             #viewer[y][x] = rotpss[(dx,dy)]
             dx, dy = -dy, dx
-            rotations.append((x,y))
+            #rotations.append((x,y))
             continue
         else:
             x,y = nx, ny
