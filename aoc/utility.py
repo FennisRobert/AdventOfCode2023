@@ -78,6 +78,8 @@ class Matrix:
             return None
         return self[row][col]
     
+    def copy(self) -> Matrix:
+        return Matrix([[x for x in row] for row in self.dt])
         
     def pad(self, n: int, filler) -> Matrix:
         emptyrow = [filler for _ in range(self.width+2*n)]
