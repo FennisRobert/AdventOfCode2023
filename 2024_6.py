@@ -44,7 +44,7 @@ mapper = {
 data = np.array([[mapper[x] for x in row] for row in data.dt])
 
 coords = [(x,y) for x,y,_,_ in path_states]
-
+coords_check = set(coords)
 loop_options = set()
 
 for x0,y0,dx0,dy0 in tqdm(path_states):
@@ -53,7 +53,7 @@ for x0,y0,dx0,dy0 in tqdm(path_states):
     
     testfield[y0+dy0,x0+dx0] = 1
     # Start 2 steps earlier than the first occurance of the block location if the block is in the path. 
-    if (x0+dx0,y0+dy0) in coords:
+    if (x0+dx0,y0+dy0) in coords_check:
         x,y,dx,dy = path_states[coords.index((x0+dx0,y0+dy0))-2]
     else:
         x,y = guard
