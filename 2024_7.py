@@ -27,31 +27,6 @@ for numbers in tqdm(data):
         
 print(f'Solution to part 1: {tot}')
 
-######## AM I STUPID ??? #########
-
-data = load(7,2024,test=True).findgroups('\d+')
-
-operators = (')+',')*','')
-def gen_eq(eq, numbers):
-    N = len(numbers)
-    op_list = list(product(operators,repeat=N-1))
-    #print(op_list)
-    for ops in op_list:
-        right = '('*(N) + ''.join([a+b for a,b in zip(numbers,list(ops)+['',])]) + ')'*(list(ops).count('')+1)
-        truth = eval(f'{eq}=={right}')
-        print(f'{eq}=={right} evals to {truth}')
-        if truth:
-            return True
-    return False
-        
-tot = 0
-for numbers in tqdm(data):
-    ans, nums = numbers[0], numbers[1:].tolist()
-    if gen_eq(ans,nums):
-        tot += int(ans)
-        
-print(f'Solution to part 2: {tot}')
-
 ######## PART 2 #######
 data = load(7,2024,test=False).findgroups('\d+')
 

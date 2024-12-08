@@ -124,10 +124,22 @@ class Matrix:
         return [self[r,c] for r,c in zip(Rs,Cs) if (r,c) is not (row,col)]
         return [x for x in [self(row+r,col+c) for r,c in zip([0, -1, -1, -1, 0, 1, 1, 1],[-1, -1, 0, 1, 1, 1, 0, -1])] if x is not None]
     
+    def find(self, content) -> list[tuple[int,int]]:
+        return [(i,j) for i in range(self.width) for j in range(self.height) if self.dt[j][i]==content]
+    
     def __getitem__(self, slc):
         if isinstance(slc, tuple):
             return Matrix([_row[slc[1]] for _row in self.dt[slc[0]]])
         return self.dt[slc]
+    
+    def ifinside(self, coord):
+        x,y = coord
+        if (0 <= x <= self.width-1) and (0 <= y <= self.height-1):
+            return coord
+        return None
+    
+    def inside(self, x,y):
+        return (0 <= x <= self.width-1) and (0 <= y <= self.height-1)
     
     def flipx(self) -> Matrix:
         return Matrix([_row[::-1] for _row in self.dt])
