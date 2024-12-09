@@ -30,14 +30,11 @@ for file_index, (n_free, n_empty) in enumerate(list(zip(data_size,empty_blocks))
     i_range_empty.append((mem_index+n_free,mem_index+n_free+n_empty))
     
     mem_index += n_free+n_empty
-    
-    
 
-# Optimize the memory
 
-memory_efficient = 1*original_memory
 
 ## Efficient method
+memory_efficient = 1*original_memory
 
 nEmpty = len(indices_empty)
 nFilled = len(indices_filled)
