@@ -1,7 +1,7 @@
 from aoc import *
 import math
 
-test = True
+test = False
 ######## PART 1 #######
 data = load(8,2024,test=test).split().tomatrix()
 
@@ -45,9 +45,11 @@ for symbol, locs in ant_locations.items():
             j=jp+i
             dx,dy = x2-x1, y2-y1
             n = math.gcd(dx,dy)
+            print(n)
             dx = dx//n
             dy = dy//n
             N = int(math.ceil(diam/math.sqrt(dx**2+dy**2)))
+            #print(N)
             for n in range(N):
                 unique_locs.add((x2+n*dx,y2+n*dy))
                 unique_locs.add((x1-n*dx,y1-n*dy))
