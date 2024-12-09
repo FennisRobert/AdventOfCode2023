@@ -8,25 +8,34 @@ data_size, empty_blocks = [int(x) for x in data[::2]],[int(x) for x in data[1::2
 empty_blocks.append(0)
 Ntot = sum([int(c) for c in data])
 
-# manage a list of memory slots that are filled and free. 
-mem_fill_data = [] # Contains the information to fill the database with data
+# Manage a list of memory slots that are filled and free. 
 indices_filled = []
 indices_empty = []
 
+# For Part 2
+i_range_filled = []
+i_range_empty = []
+
 mem_index = 0
+
 # Prefill the required data
-memory = np.zeros((Ntot,),dtype=np.int32)
+original_memory = np.zeros((Ntot,),dtype=np.int32)
 
 for file_index, (n_free, n_empty) in enumerate(list(zip(data_size,empty_blocks))):
-    mem_fill_data += [(file_index,mem_id) for mem_id in list(range(mem_index, mem_index+n_free))]
-    memory[mem_index:mem_index+n_free] = file_index
+    original_memory[mem_index:mem_index+n_free] = file_index
     indices_filled += list(range(mem_index, mem_index+n_free))
     indices_empty += list(range(mem_index+n_free, mem_index+n_free+n_empty))
+    
+    i_range_filled.append((mem_index,mem_index+n_free))
+    i_range_empty.append((mem_index+n_free,mem_index+n_free+n_empty))
+    
     mem_index += n_free+n_empty
+    
+    
 
 # Optimize the memory
 
-memory_efficient = 1*memory
+memory_efficient = 1*original_memory
 
 ## Efficient method
 
@@ -40,7 +49,7 @@ memory_efficient[ifilled[nFilled-merge_limit:][::-1]] = 0
 
 
 ## Original step by step method
-
+memory = original_memory
 while True:
     if indices_filled[-1] < indices_empty[0]:
         break
@@ -56,32 +65,8 @@ print(f'Solution to part 1: {sum([i*n for i,n in enumerate(memory)])}, right ans
 print(f'Solution to part 1: {sum([i*n for i,n in enumerate(memory_efficient)])}, right answer = 6421128769094')
 
 ######## PART 2 #######
-data = load(9,2024,test=False)[0]
 
-data_size, empty_blocks = [int(x) for x in data[::2]],[int(x) for x in data[1::2]]
-
-empty_blocks.append(0)
-Ntot = sum([int(c) for c in data])
-
-mem_fill_data = []
-i_range_filled = []
-i_range_empty = []
-
-mem_index = 0
-
-# Keep a list of ranges of memmory that are fillen and available
-for file_index, (n_free, n_empty) in enumerate(list(zip(data_size,empty_blocks))):
-    mem_fill_data += [(file_index,ii) for ii in list(range(mem_index,mem_index+n_free))]
-    i_range_filled.append((mem_index,mem_index+n_free))
-    i_range_empty.append((mem_index+n_free,mem_index+n_free+n_empty))
-    mem_index += n_free+n_empty
-
-# Generate the total computer memory and transform it into a np.array
-memory = [0 for x in range(Ntot)]
-for index, file_index in mem_fill_data:
-    memory[file_index]=index
-
-memory = np.array(memory)
+memory = 1*original_memory
 
 # Start the memory optimization loop starting with the last range
 
