@@ -4,10 +4,6 @@ from collections import defaultdict
 ######## PART 1 #######
 data = load(11,2024,test=False).split(' ').toint()[0].tolist()
 
-stonelist = []
-
-becomes = defaultdict(int)
-
 @cache
 def calc_new(num: int, amount: int) -> list[tuple]:
     nd = len(str(num))
