@@ -50,17 +50,12 @@ def measure_circumference_p2(Mx, My):
     totsides = 0
     for i in range(Mx.shape[0]):
         sides = 0
-        icx = 0
-        icy = 0
+        cur_number = 0
         for j in range(Mx.shape[1]):
-            numx = Mx[i,j]
             numy = My[j,i]
-            if numx != icx:
-                sides += np.abs(numx)
-                icx = numx
-            if numy != icy:
-                sides += np.abs(numy)
-                icy = numy
+            if numy != cur_number:
+                sides += np.abs(numy)*2 # Number of unique H-sides == unique V-sides.
+                cur_number = numy
         totsides += sides   
     return totsides
 
