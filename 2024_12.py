@@ -46,28 +46,22 @@ total_part_2 = 0
 # This function will count all the series of 1's and -1's as blocks and returns those
 # A +1 is a left or up moving area and -1 a right or down moving.
 @nb.njit(cache=True)
-def measure_circumpherance_pt2(Mx, My):
+def measure_circumference_p2(Mx, My):
     totsides = 0
     for i in range(Mx.shape[0]):
         sides = 0
-        ic = 0
+        icx = 0
+        icy = 0
         for j in range(Mx.shape[1]):
-            num = Mx[i,j]
-            if num != ic:
-                if num!=0:
-                    sides += 1
-                ic = num
-        totsides += sides
-    for i in range(My.shape[1]):
-        sides = 0
-        ic = 0
-        for j in range(My.shape[0]):
-            num = My[j,i]
-            if num != ic:
-                if num!=0:
-                    sides += 1
-                ic = num
-        totsides += sides
+            numx = Mx[i,j]
+            numy = My[j,i]
+            if numx != icx:
+                sides += np.abs(numx)
+                icx = numx
+            if numy != icy:
+                sides += np.abs(numy)
+                icy = numy
+        totsides += sides   
     return totsides
 
 for key, areas in tqdm.tqdm(fields.items()):
@@ -80,9 +74,9 @@ for key, areas in tqdm.tqdm(fields.items()):
         My[x,y+1] += 1
         My[x,y] -= 1
     
-    total_part_2 += measure_circumpherance_pt2(Mx,My)*area
-    circumpherance = np.sum(np.abs(Mx).flatten())+np.sum(np.abs(My).flatten())
-    total_part_1 += area*circumpherance
+    total_part_2 += measure_circumference_p2(Mx,My)*area
+    circumference = np.sum(np.abs(Mx).flatten())+np.sum(np.abs(My).flatten())
+    total_part_1 += area*circumference
     
 
 print(f'Solution to part 1: {total_part_1}')
