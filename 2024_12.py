@@ -17,13 +17,13 @@ def collect(x,y):
     field = set()
     cue = [(x,y)]
     while cue:
-        neighbors = []
+        neighbors = set()
         for x0,y0 in cue:
             for (X,Y) in [(x0-1,y0),(x0+1,y0),(x0,y0-1),(x0,y0+1)]:
                 if ((X,Y) not in field) and (data[Y][X] == symb) and ((X,Y) not in cue) and ((X,Y) not in neighbors):
-                    neighbors.append((X,Y))
+                    neighbors.add((X,Y))
         field = field.union(set(cue))
-        cue = neighbors
+        cue = list(neighbors)
     return (symb,x,y), field
 
 
@@ -39,7 +39,6 @@ areamap = np.zeros((W,H)).astype(np.int32)
 
 total_part_1 = 0
 total_part_2 = 0
-
 
 #This functions counts the unique series of circumpherances. 
 # A single row will contain something like 0 0 0 1 1 1 1 0 -1 -1 -1 0
