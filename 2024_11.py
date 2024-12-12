@@ -1,6 +1,7 @@
 from aoc import *
 from functools import cache
 from collections import defaultdict
+import time
 ######## PART 1 #######
 data = load(11,2024,test=False).split(' ').toint()[0].tolist()
 
@@ -26,6 +27,7 @@ def compute_blinks(N: int) -> int:
         stone_counter = newcounter
     return sum([v for v in stone_counter.values()])
 
+start = time.time()
 print(f'Part 1 = {compute_blinks(25)}')
 print(f'Part 2 = {compute_blinks(75)}')
-
+print(f'Execution time = {time.time()-start} seconds')
