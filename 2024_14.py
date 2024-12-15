@@ -61,7 +61,7 @@ for i in range(Nframes):
     #p
     if max(M.flatten())==1:
         coords = [(x,y) for x,y,a,b in robots]
-        M = Matrix([[' ' for _ in range(W)] for _ in range(H)])
+        M = Matrix([[' ' for _ in range(W)] for _ in range(H)]) 
         print(M.tostring(W,H,mark=(coords,'X'),nospace=True))
         input(f'{i}')
     for i, rob in enumerate(robots):
