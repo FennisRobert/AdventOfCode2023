@@ -78,6 +78,10 @@ class Matrix:
             return None
         return self[row][col]
     
+    @property
+    def dims(self) -> tuple[int,int]:
+        return self.width, self.height
+    
     def copy(self) -> Matrix:
         return Matrix([[x for x in row] for row in self.dt])
         
