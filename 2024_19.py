@@ -8,20 +8,33 @@ from tqdm import tqdm
 towels, designs = load(19,2024,test=False).symbgroup()
 towels = towels.split(', ').reduce(lambda a,b: a.extend(b), False)
 
-towelpats = [re.compile(towel) for towel in towels]
+towelpats = [towel for towel in towels]
 
 towellengs = {i: len(towel) for i, towel in enumerate(towels)}
 
+def find_overlapping(pattern, text):
+    matches = []
+    pos = 0
+    while True:
+        match = re.search(pattern, text[pos:])
+        if not match:
+            break
+        start = pos + match.start()
+        end = pos + match.end()
+        matches.append((start, end))
+        pos += match.start() + 1  # Move one character forward after the match start
+    return matches
 
 def check_design(design: str, patterns: list[re.Pattern]) -> list:
     options = defaultdict(list)
     for ipat, pat in enumerate(patterns):
-        for match in pat.finditer(design):
+        #print(pat)
+        for match in find_overlapping(pat, design):
+            #print(match)
             if match is None:
                 continue
-            options[match.start()].append(match.end()-match.start())
+            options[match[0]].append(match[1]-match[0])
             
-    #print(options)
     counter = np.zeros((len(design)*2,)).astype(np.int64)
     counter[0] = 1
     Nd = len(design)
