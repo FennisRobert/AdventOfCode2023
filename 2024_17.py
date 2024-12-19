@@ -126,6 +126,7 @@ while True:
         value += step
         icounter += 1
     solution = solution + step*icounter
+    
     if solved:
         break
     
