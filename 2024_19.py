@@ -5,7 +5,8 @@ from typing import List, Dict
 from collections import defaultdict
 from tqdm import tqdm
 ######## PART 1 #######
-towels, designs = load(19,2024,test=False).symbgroup()
+
+towels, designs = load(19,2024,test=True).symbgroup()
 towels = towels.split(', ').reduce(lambda a,b: a.extend(b), False)
 
 towelpats = [towel for towel in towels]
